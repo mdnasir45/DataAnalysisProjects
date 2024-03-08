@@ -61,7 +61,8 @@ select location,max(cast(total_deaths as int)) as TotalDeathCount
 select continent,max(cast(total_deaths as int)) as TotalDeathCount 
 from Protfolioproject..Covid_Deaths$ 
 where continent is not null
-group by continent order by TotalDeathCount desc
+group by continent 
+order by TotalDeathCount desc
 
 
 --GLOBAL NUMBERS
@@ -82,17 +83,19 @@ from Protfolioproject..Covid_Deaths$
 
 with PopvsVac (continent,location,date,population,new_vaccinations,RollingPeopleVaccinated) as
 
-	   (select  dea.continent,dea.location,dea.date,dea.population,vac.new_vaccinations,
-		  sum(convert(bigint,vac.new_vaccinations)) over (partition by dea.location order by dea.location,dea.date) as RollingPeopleVaccinated
+     (select  dea.continent,dea.location,dea.date,dea.population,vac.new_vaccinations,
+	       sum(convert(bigint,vac.new_vaccinations)) over (partition by dea.location 
+               order by dea.location,dea.date) as RollingPeopleVaccinated
 from Protfolioproject..Covid_Vac$ vac  join Protfolioproject..Covid_Deaths$ dea
 on vac.date=dea.date and dea.location=vac.location
 where dea.continent is not null)
 
-       Select *,(RollingPeopleVaccinated/population)*100 as PercentPopulationVaccinated from PopvsVac
+Select *,(RollingPeopleVaccinated/population)*100 as PercentPopulationVaccinated from PopvsVac
 
 create view PercentPopulationVaccinated as
 	        select  dea.continent,dea.location,dea.date,dea.population,vac.new_vaccinations,
-		       sum(convert(bigint,vac.new_vaccinations)) over (partition by dea.location order by dea.location,dea.date) as RollingPeopleVaccinated
+		       sum(convert(bigint,vac.new_vaccinations)) over (partition by dea.location 
+	                order by dea.location,dea.date) as RollingPeopleVaccinated
                 from Protfolioproject..Covid_Vac$ vac  join Protfolioproject..Covid_Deaths$ dea
 	        on vac.date=dea.date and dea.location=vac.location
 		where dea.continent is not null
