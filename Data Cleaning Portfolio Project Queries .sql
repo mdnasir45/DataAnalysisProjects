@@ -10,10 +10,9 @@ Data Cleaning in SQL
 
 --Standardize Date Format
 
+use Portfolioproject;
+Select SaleDate,Convert(Date,SaleDate) from Portfolioproject..NashVillHousing
 
-Select SaleDate,Convert(Date,SaleDate) from Protfolioproject..NashVillHousing
-
-USE Protfolioproject
 ALTER TABLE NashVillHousing
 ADD SaleDateConverted DATE;
 
@@ -21,7 +20,8 @@ ADD SaleDateConverted DATE;
 update NashVillHousing 
 set SaleDateConverted=CONVERT(date,Saledate)
 
-select SaleDate ,SaleDateConverted from Protfolioproject..NashVillHousing
+select SaleDate ,SaleDateConverted from Portfolioproject..NashVillHousing
+	
 
 --------------------------------------------------------------------------------------------------------------------------------
 
@@ -29,11 +29,9 @@ select SaleDate ,SaleDateConverted from Protfolioproject..NashVillHousing
 --Populate Property Address data
 
 
-select * from Protfolioproject..NashVillHousing
-
 select a.ParcelID,a.PropertyAddress,b.ParcelID,b.PropertyAddress,isnull(a.PropertyAddress,b.PropertyAddress)
-from Protfolioproject..NashVillHousing a
-join Protfolioproject..NashVillHousing b
+from Portfolioproject..NashVillHousing a
+join Portfolioproject..NashVillHousing b
     on a.ParcelID=b.ParcelID
     AND a.UniqueID <> b.UniqueID
 WHERE a.PropertyAddress is null
@@ -41,8 +39,8 @@ WHERE a.PropertyAddress is null
 
 update a
 set PropertyAddress= isnull(a.PropertyAddress,b.PropertyAddress)
-from Protfolioproject..NashVillHousing a
-join Protfolioproject..NashVillHousing b
+from Portfolioproject..NashVillHousing a
+join Portfolioproject..NashVillHousing b
     on a.ParcelID=b.ParcelID
     AND a.UniqueID <> b.UniqueID
 WHERE a.PropertyAddress is null
@@ -54,11 +52,11 @@ WHERE a.PropertyAddress is null
  ---------------------------------------------------------------------------------------------------------------------------
 
 
---Breakinh out Address into individual Columns (Address,City,State)
+--Breaking out Address into individual Columns (Address,City,State)
 
 select SUBSTRING(PropertyAddress,1,CHARINDEX(',',PropertyAddress)-1) as Address,
         SUBSTRING(PropertyAddress,charindex(',',PropertyAddress)+1,len(PropertyAddress)) as City
-from Protfolioproject..NashVillHousing
+from Portfolioproject..NashVillHousing
 
 
 Alter Table NashVillHousing
@@ -74,13 +72,13 @@ Update NashVillHousing
 set PropertySplitCity= SUBSTRING(PropertyAddress,charindex(',',PropertyAddress)+1,len(PropertyAddress));
 
 
- select * from Protfolioproject..NashVillHousing
+ select * from Portfolioproject..NashVillHousing
 
 
  select PARSENAME(replace(OwnerAddress,',','.'),3),
  PARSENAME(replace(OwnerAddress,',','.'),2),
  PARSENAME(replace(OwnerAddress,',','.'),1)
- from Protfolioproject..NashVillHousing
+ from Portfolioproject..NashVillHousing
  where OwnerAddress is not null
    
  Alter Table NashVillHousing
@@ -109,18 +107,18 @@ set PropertySplitCity= SUBSTRING(PropertyAddress,charindex(',',PropertyAddress)+
   --Change Y and N to Yes and No in "Sold as Vacant"
 
   Select Distinct(SoldAsVacant) ,Count(SoldAsVacant)
-  from Protfolioproject..NashVillHousing
+  from Portfolioproject..NashVillHousing
   group by SoldAsVacant
   order by 2
-
-  use Protfolioproject
+	 
+  use Portfolioproject
   select SoldAsVacant,
   case
 		when SoldAsVacant='Y' then 'Yes'
 		when SoldAsVacant='N' then 'No'
 		else SoldAsVacant
 		end 
-  from Protfolioproject..NashVillHousing
+  from Portfolioproject..NashVillHousing
 
 
   update NashVillHousing
@@ -129,14 +127,14 @@ set PropertySplitCity= SUBSTRING(PropertyAddress,charindex(',',PropertyAddress)+
 		when SoldAsVacant='N' then 'No'
 		else SoldAsVacant
 		end 
-  from Protfolioproject..NashVillHousing
+  from Portfolioproject..NashVillHousing
 
 
 
 
   --------------------------------------------------------------------------------------------------------------------------------
 
-  --Remove Duplicate Data
+  --Removing Duplicate Data
   
 with RowNumCTE as (
     SELECT *,
@@ -148,7 +146,7 @@ with RowNumCTE as (
                          LegalReference
                          order by UniqueID
             ) as RowNumber
-           from Protfolioproject..NashVillHousing
+           from Portfolioproject..NashVillHousing
 	      --order by ParcelID
 		  )
 
@@ -164,10 +162,9 @@ where RowNumber > 1;
 
 --Delete Unused Columns
 
-Alter Table Protfolioproject..NashVillHousing
+Alter Table Portfolioproject..NashVillHousing
 drop column OwnerAddress,PropertyAddress,TaxDistrict,SaleDate;
 
 
-
-		select * from Protfolioproject..NashVillHousing
+select * from Portfolioproject..NashVillHousing
 
